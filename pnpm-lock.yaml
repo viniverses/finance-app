@@ -11,6 +11,9 @@ importers:
       '@workspace/eslint-config':
         specifier: workspace:*
         version: link:packages/eslint-config
+      '@workspace/prettier-config':
+        specifier: workspace:*
+        version: link:packages/prettier-config
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:packages/typescript-config
@@ -69,12 +72,18 @@ importers:
       '@workspace/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@workspace/prettier-config':
+        specifier: workspace:*
+        version: link:../../packages/prettier-config
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       drizzle-kit:
         specifier: ^0.31.6
         version: 0.31.8
+      prettier:
+        specifier: ^3.7.4
+        version: 3.7.4
       tsx:
         specifier: ^4.20.5
         version: 4.21.0
@@ -172,6 +181,12 @@ importers:
       typescript-eslint:
         specifier: ^8.39.0
         version: 8.39.0(eslint@9.32.0(jiti@2.6.1))(typescript@5.9.2)
+
+  packages/prettier-config:
+    devDependencies:
+      prettier:
+        specifier: ^3.7.4
+        version: 3.7.4
 
   packages/typescript-config: {}
 
