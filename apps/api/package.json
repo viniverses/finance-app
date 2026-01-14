@@ -25,11 +25,13 @@
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
+    "@workspace/prettier-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.9",
     "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.6",
+    "prettier": "^3.7.4",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }

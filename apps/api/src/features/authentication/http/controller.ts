@@ -1,99 +1,114 @@
 import { Elysia } from 'elysia';
 
-import { AuthenticateUseCase } from '@/features/authentication/application/use-cases/authenticate.use-case.ts';
-import { GetUserProfileUseCase } from '@/features/authentication/application/use-cases/get-user-profile.use-case.ts';
-import { RegisterUseCase } from '@/features/authentication/application/use-cases/register.use-case.ts';
-import { UpdateUserUseCase } from '@/features/authentication/application/use-cases/update-user.use-case.ts';
+import type { AuthenticateUseCase } from '@/features/authentication/application/use-cases/authenticate.ts';
 import {
   authenticateOpenApi,
   getProfileOpenApi,
   registerOpenApi,
   updateUserOpenApi,
 } from '@/features/authentication/http/openapi/index.ts';
-import { authPlugin } from '@/shared/http/plugins/auth.plugin.ts';
-import { httpPlugin } from '@/shared/http/plugins/http.plugin.ts';
+import type { JwtTokens } from '@/features/authentication/services/jwt.ts';
+import { GetUserProfileUseCase } from '@/features/authentication/application/use-cases/get-user-profile.ts';
+import { RegisterUseCase } from '@/features/authentication/application/use-cases/register.ts';
+import { UpdateUserUseCase } from '@/features/authentication/application/use-cases/update-user.ts';
+import { authPlugin } from '@/shared/http/plugins/auth.ts';
+import { httpPlugin } from '@/shared/http/plugins/http.ts';
 
-type AuthenticationUseCases = {
-  authenticateUseCase: AuthenticateUseCase;
+type SignInFunction = (user: {
+  id: string;
+  name: string;
+  email: string;
+}) => Promise<JwtTokens>;
+
+export type AuthenticateControllerDependencies = {
   registerUseCase: RegisterUseCase;
   getUserProfileUseCase: GetUserProfileUseCase;
   updateUserUseCase: UpdateUserUseCase;
+  createAuthenticateUseCase: (signIn: SignInFunction) => AuthenticateUseCase;
 };
 
-export const authenticateController = (useCases: AuthenticationUseCases) => {
-  const { authenticateUseCase, registerUseCase, getUserProfileUseCase, updateUserUseCase } =
-    useCases;
+export class AuthenticateController {
+  constructor(
+    private readonly dependencies: AuthenticateControllerDependencies
+  ) {}
 
-  return new Elysia({ name: 'authentication-controller' })
-    .use(httpPlugin)
-    .use(authPlugin)
-    .post(
-      '/authenticate',
-      async ({ body, signIn, set }) => {
-        const result = await authenticateUseCase.execute({
-          email: body.email,
-          password: body.password,
-        });
+  public setupPublicRoutes() {
+    return new Elysia()
+      .use(httpPlugin)
+      .use(authPlugin)
+      .post(
+        '/authenticate',
+        async ({ body, signIn, set }) => {
+          const authenticateUseCase =
+            this.dependencies.createAuthenticateUseCase(signIn);
 
-        const tokens = await signIn({
-          id: result.id,
-          name: result.name,
-          email: result.email,
-        });
+          const tokens = await authenticateUseCase.execute({
+            email: body.email,
+            password: body.password,
+          });
 
-        set.status = 200;
-        return tokens;
-      },
-      authenticateOpenApi
-    )
-    .post(
-      '/register',
-      async ({ body, set }) => {
-        await registerUseCase.execute({
-          email: body.email,
-          name: body.name,
-          password: body.password,
-        });
+          set.status = 200;
+          return tokens;
+        },
+        authenticateOpenApi
+      )
+      .post(
+        '/register',
+        async ({ body, set }) => {
+          await this.dependencies.registerUseCase.execute({
+            email: body.email,
+            name: body.name,
+            password: body.password,
+          });
 
-        set.status = 201;
-      },
-      registerOpenApi
-    )
-    .get(
-      '/me',
-      async ({ getCurrentUser }) => {
-        const currentUser = await getCurrentUser();
+          set.status = 201;
+        },
+        registerOpenApi
+      );
+  }
 
-        const user = await getUserProfileUseCase.execute({
-          id: currentUser.id,
-        });
+  public setupPrivateRoutes() {
+    return new Elysia()
+      .use(httpPlugin)
+      .use(authPlugin)
+      .get(
+        '/me',
+        async ({ getCurrentUser }) => {
+          const currentUser = await getCurrentUser();
 
-        return {
-          ...user,
-          allowed: user.allowed ?? false,
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt?.toISOString() ?? null,
-        };
-      },
-      getProfileOpenApi
-    )
-    .put(
-      '/users/:id',
-      async ({ params, body }) => {
-        const updatedUser = await updateUserUseCase.execute({
-          id: params.id,
-          name: body.name,
-          email: body.email,
-          telegramId: body.telegramId,
-        });
+          const user = await this.dependencies.getUserProfileUseCase.execute({
+            id: currentUser.id,
+          });
 
-        return {
-          ...updatedUser,
-          allowed: updatedUser.allowed ?? false,
-          createdAt: updatedUser.createdAt.toISOString(),
-          updatedAt: updatedUser.updatedAt?.toISOString() ?? null,
-        };
-      },
-      updateUserOpenApi
-    );
-};
+          return {
+            ...user,
+            allowed: user.allowed ?? false,
+            createdAt: user.createdAt.toISOString(),
+            updatedAt: user.updatedAt?.toISOString() ?? null,
+          };
+        },
+        getProfileOpenApi
+      )
+      .put(
+        '/users/:id',
+        async ({ params, body }) => {
+          const updatedUser = await this.dependencies.updateUserUseCase.execute(
+            {
+              id: params.id,
+              name: body.name,
+              email: body.email,
+              telegramId: body.telegramId,
+            }
+          );
+
+          return {
+            ...updatedUser,
+            allowed: updatedUser.allowed ?? false,
+            createdAt: updatedUser.createdAt.toISOString(),
+            updatedAt: updatedUser.updatedAt?.toISOString() ?? null,
+          };
+        },
+        updateUserOpenApi
+      );
+  }
+}
