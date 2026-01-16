@@ -4,9 +4,10 @@ import { z } from 'zod';
 config();
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   PORT: z.string().default('3000').transform(Number),
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
   API_VERSION: z.string().min(1, 'API_VERSION is required'),

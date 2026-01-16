@@ -1,11 +1,13 @@
-import { db } from 'db/client.ts';
+import { db } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 
 import { RepositoryError } from '@/shared/errors/repository.ts';
 import type { BaseRepository } from '@/shared/repositories/base.ts';
 
-export abstract class DrizzleBaseRepository<TEntity> implements BaseRepository<TEntity> {
+export abstract class DrizzleBaseRepository<
+  TEntity,
+> implements BaseRepository<TEntity> {
   protected abstract readonly schema: PgTable;
 
   private getTableName(): string {
@@ -23,7 +25,11 @@ export abstract class DrizzleBaseRepository<TEntity> implements BaseRepository<T
 
   async findById(id: string): Promise<TEntity | null> {
     try {
-      const result = await db.select().from(this.schema).where(eq(this.getIdColumn(), id)).limit(1);
+      const result = await db
+        .select()
+        .from(this.schema)
+        .where(eq(this.getIdColumn(), id))
+        .limit(1);
 
       return (result[0] as TEntity) ?? null;
     } catch (error) {
@@ -72,4 +78,3 @@ export abstract class DrizzleBaseRepository<TEntity> implements BaseRepository<T
     }
   }
 }
-

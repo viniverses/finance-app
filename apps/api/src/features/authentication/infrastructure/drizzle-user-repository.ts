@@ -1,5 +1,4 @@
-import { db } from 'db/client.ts';
-import { users } from 'db/schemas/users.ts';
+import { db, users } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 
 import { DrizzleBaseRepository } from '@/shared/infrastructure/repositories/drizzle-base-repository.ts';
