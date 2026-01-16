@@ -13,7 +13,10 @@ export const authPlugin = new Elysia({ name: 'auth' })
         const payload = await jwt.verify(token.substring(7));
 
         if (!payload) {
-          throw new UnauthorizedError({ message: 'Invalid token', code: 'INVALID_TOKEN' });
+          throw new UnauthorizedError({
+            message: 'Invalid token',
+            code: 'INVALID_TOKEN',
+          });
         }
 
         return payload;
@@ -25,28 +28,5 @@ export const authPlugin = new Elysia({ name: 'auth' })
         details: 'Expected "Bearer <token>" in Authorization header',
       });
     },
-    signIn: async (user: { id: string; name: string; email: string }) => {
-      const accessToken = await jwt.sign({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
-
-      const expiresIn = 7 * 24 * 60 * 60; // 7 dias
-      const exp = Math.floor(Date.now() / 1000) + expiresIn;
-
-      const refreshToken = await jwt.sign({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        exp,
-      });
-
-      return {
-        accessToken,
-        refreshToken,
-      };
-    },
   }))
   .as('global');
-

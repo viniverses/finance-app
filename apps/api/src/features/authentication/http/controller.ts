@@ -1,33 +1,33 @@
 import { Elysia } from 'elysia';
 
-import type { AuthenticateUseCase } from '@/features/authentication/application/use-cases/authenticate.ts';
+import { AuthenticateUseCase } from '@/features/authentication/application/use-cases/authenticate.ts';
 import {
   authenticateOpenApi,
   getProfileOpenApi,
   registerOpenApi,
   updateUserOpenApi,
 } from '@/features/authentication/http/openapi/index.ts';
-import type { JwtTokens } from '@/features/authentication/services/jwt.ts';
 import { GetUserProfileUseCase } from '@/features/authentication/application/use-cases/get-user-profile.ts';
 import { RegisterUseCase } from '@/features/authentication/application/use-cases/register.ts';
 import { UpdateUserUseCase } from '@/features/authentication/application/use-cases/update-user.ts';
+import { ElysiaJwtService } from '@/features/authentication/infrastructure/elysia-jwt.ts';
+import { UserMapper } from '@/features/authentication/http/mappers/users.ts';
 import { authPlugin } from '@/shared/http/plugins/auth.ts';
 import { httpPlugin } from '@/shared/http/plugins/http.ts';
-
-type SignInFunction = (user: {
-  id: string;
-  name: string;
-  email: string;
-}) => Promise<JwtTokens>;
+import { UserRepository } from '../repositories/user.ts';
+import { PasswordHasherService } from '../services/password-hasher.ts';
 
 export type AuthenticateControllerDependencies = {
   registerUseCase: RegisterUseCase;
   getUserProfileUseCase: GetUserProfileUseCase;
   updateUserUseCase: UpdateUserUseCase;
-  createAuthenticateUseCase: (signIn: SignInFunction) => AuthenticateUseCase;
+  userRepository: UserRepository;
+  passwordHashService: PasswordHasherService;
 };
 
 export class AuthenticateController {
+  private readonly userMapper = new UserMapper();
+
   constructor(
     private readonly dependencies: AuthenticateControllerDependencies
   ) {}
@@ -38,9 +38,13 @@ export class AuthenticateController {
       .use(authPlugin)
       .post(
         '/authenticate',
-        async ({ body, signIn, set }) => {
-          const authenticateUseCase =
-            this.dependencies.createAuthenticateUseCase(signIn);
+        async ({ body, jwt, set }) => {
+          const jwtService = new ElysiaJwtService(jwt);
+          const authenticateUseCase = new AuthenticateUseCase(
+            this.dependencies.userRepository,
+            this.dependencies.passwordHashService,
+            jwtService
+          );
 
           const tokens = await authenticateUseCase.execute({
             email: body.email,
@@ -55,11 +59,7 @@ export class AuthenticateController {
       .post(
         '/register',
         async ({ body, set }) => {
-          await this.dependencies.registerUseCase.execute({
-            email: body.email,
-            name: body.name,
-            password: body.password,
-          });
+          await this.dependencies.registerUseCase.execute(body);
 
           set.status = 201;
         },
@@ -80,12 +80,7 @@ export class AuthenticateController {
             id: currentUser.id,
           });
 
-          return {
-            ...user,
-            allowed: user.allowed ?? false,
-            createdAt: user.createdAt.toISOString(),
-            updatedAt: user.updatedAt?.toISOString() ?? null,
-          };
+          return this.userMapper.toDTO(user);
         },
         getProfileOpenApi
       )
@@ -101,12 +96,7 @@ export class AuthenticateController {
             }
           );
 
-          return {
-            ...updatedUser,
-            allowed: updatedUser.allowed ?? false,
-            createdAt: updatedUser.createdAt.toISOString(),
-            updatedAt: updatedUser.updatedAt?.toISOString() ?? null,
-          };
+          return this.userMapper.toDTO(updatedUser);
         },
         updateUserOpenApi
       );

@@ -1,11 +1,33 @@
+import { JWTPayload } from '@/shared/http/plugins/jwt.ts';
 import type { JwtService, JwtSignPayload, JwtTokens } from '../services/jwt.ts';
 
-type SignInFunction = (user: { id: string; name: string; email: string }) => Promise<JwtTokens>;
+type ElysiaJwt = {
+  sign: (payload: JWTPayload) => Promise<string>;
+};
 
 export class ElysiaJwtService implements JwtService {
-  constructor(private readonly signIn: SignInFunction) {}
+  constructor(private readonly jwt: ElysiaJwt) {}
 
   async sign(payload: JwtSignPayload): Promise<JwtTokens> {
-    return await this.signIn(payload);
+    const accessToken = await this.jwt.sign({
+      id: payload.id,
+      name: payload.name,
+      email: payload.email,
+    });
+
+    const expiresIn = 7 * 24 * 60 * 60; // 7 dias
+    const exp = Math.floor(Date.now() / 1000) + expiresIn;
+
+    const refreshToken = await this.jwt.sign({
+      id: payload.id,
+      name: payload.name,
+      email: payload.email,
+      exp,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

@@ -29,7 +29,11 @@ export const httpPlugin = new Elysia({ name: 'http' })
       set.status = error.statusCode;
       return {
         success: false as const,
-        error: error,
+        error: {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+        },
         meta,
       };
     }
