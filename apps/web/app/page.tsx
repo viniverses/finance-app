@@ -1,12 +1,17 @@
-import { Button } from "@workspace/ui/components/button"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 
-export default function Page() {
-  return (
-    <div className="flex items-center justify-center min-h-svh">
-      <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Hello World</h1>
-        <Button size="sm">Button</Button>
-      </div>
-    </div>
-  )
+import { FinanceHome } from "@/components/finance-home"
+import { auth } from "@/lib/auth"
+
+export default async function Page() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session) {
+    redirect("/sign-in")
+  }
+
+  return <FinanceHome userName={session.user.name} />
 }

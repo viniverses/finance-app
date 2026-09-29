@@ -1,5 +1,5 @@
-import type { JwtService } from '@/features/authentication/services/jwt.ts';
 import type { UserRepository } from '@/features/authentication/repositories/user.ts';
+import type { JwtService } from '@/features/authentication/services/jwt.ts';
 import type { PasswordHasherService } from '@/features/authentication/services/password-hasher.ts';
 import { UnauthorizedError } from '@/shared/errors/unauthorized.ts';
 
