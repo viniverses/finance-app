@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
@@ -230,13 +230,14 @@ function EmptyState({
 
 export function FinanceDataPage({ kind }: { kind: PageKind }) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const defaultRange = useMemo(initialRange, [])
   const [draftFrom, setDraftFrom] = useState(defaultRange.from)
   const [draftTo, setDraftTo] = useState(defaultRange.to)
   const [range, setRange] = useState(defaultRange)
   const [search, setSearch] = useState("")
   const query = useQuery({
-    queryKey: ["finance-range", range.from, range.to],
+    queryKey: ["finance", "range", range.from, range.to],
     queryFn: () => requestRange(range.from, range.to),
     enabled: validRange(range.from, range.to),
     refetchOnWindowFocus: false,
@@ -255,6 +256,7 @@ export function FinanceDataPage({ kind }: { kind: PageKind }) {
 
   async function signOut() {
     await authClient.signOut()
+    queryClient.clear()
     router.push("/sign-in")
     router.refresh()
   }

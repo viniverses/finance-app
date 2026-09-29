@@ -2,7 +2,11 @@
 
 import "./finance-dashboard.css"
 
-import { useMutation } from "@tanstack/react-query"
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import {
@@ -14,7 +18,7 @@ import {
 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import {
   DashboardError,
@@ -85,42 +89,14 @@ async function requestFinanceData(): Promise<FinanceResponse> {
 
 export function FinanceHome({ userName }: FinanceHomeProps) {
   const router = useRouter()
-  const [financeData, setFinanceData] = useState<FinanceData | null>(null)
-  const [financeError, setFinanceError] = useState<string | null>(null)
-  const [connectionState, setConnectionState] = useState<
-    "loading" | "unconnected" | "connected"
-  >("loading")
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const queryClient = useQueryClient()
   const [widgetError, setWidgetError] = useState<string | null>(null)
-
-  async function loadFinanceData() {
-    setIsRefreshing(true)
-    setFinanceError(null)
-
-    try {
-      const result = await requestFinanceData()
-
-      if ("connected" in result) {
-        setFinanceData(null)
-        setConnectionState("unconnected")
-      } else {
-        setFinanceData(result)
-        setConnectionState("connected")
-      }
-    } catch (error) {
-      setFinanceError(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível carregar seus dados."
-      )
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
-
-  useEffect(() => {
-    void loadFinanceData()
-  }, [])
+  const financeQuery = useQuery({
+    queryKey: ["finance"],
+    queryFn: requestFinanceData,
+    refetchOnWindowFocus: false,
+    retry: false,
+  })
 
   const connectTokenMutation = useMutation({
     mutationFn: requestConnectToken,
@@ -129,30 +105,26 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
     },
   })
 
-  async function handleConnectionSuccess(itemId: string) {
-    setConnectionState("loading")
-    setFinanceError(null)
+  const saveConnectionMutation = useMutation({
+    mutationFn: savePluggyConnection,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["finance"] })
+    },
+  })
 
-    try {
-      await savePluggyConnection(itemId)
-      await loadFinanceData()
-    } catch (error) {
-      setFinanceError(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível salvar a conexão."
-      )
-      setConnectionState("unconnected")
-    }
+  function handleConnectionSuccess(itemId: string) {
+    setWidgetError(null)
+    saveConnectionMutation.mutate(itemId)
   }
 
   async function handleSignOut() {
     await authClient.signOut()
+    queryClient.clear()
     router.push("/sign-in")
     router.refresh()
   }
 
-  if (connectionState === "loading" && !financeData && !financeError) {
+  if (financeQuery.isPending || saveConnectionMutation.isPending) {
     return (
       <DashboardLoading
         title="Carregando seu painel"
@@ -161,22 +133,26 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
     )
   }
 
-  if (connectionState === "connected" && financeData) {
+  if (financeQuery.isError) {
     return (
-      <FinanceDashboard
-        data={financeData}
-        isRefreshing={isRefreshing}
-        onRefresh={() => void loadFinanceData()}
-        onSignOut={() => void handleSignOut()}
+      <DashboardError
+        message={
+          financeQuery.error instanceof Error
+            ? financeQuery.error.message
+            : "Não foi possível carregar seus dados."
+        }
+        onRetry={() => void financeQuery.refetch()}
       />
     )
   }
 
-  if (financeError && connectionState !== "unconnected") {
+  if (financeQuery.data && !("connected" in financeQuery.data)) {
     return (
-      <DashboardError
-        message={financeError}
-        onRetry={() => void loadFinanceData()}
+      <FinanceDashboard
+        data={financeQuery.data}
+        isRefreshing={financeQuery.isFetching}
+        onRefresh={() => void financeQuery.refetch()}
+        onSignOut={() => void handleSignOut()}
       />
     )
   }
@@ -184,7 +160,9 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
   const connectToken = connectTokenMutation.data
   const isConnecting = connectTokenMutation.isPending
   const error =
-    widgetError ?? connectTokenMutation.error?.message ?? financeError
+    widgetError ??
+    connectTokenMutation.error?.message ??
+    saveConnectionMutation.error?.message
 
   return (
     <main className="st-auth-page">
