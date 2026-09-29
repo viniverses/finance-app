@@ -10,13 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
   ArrowDownLeft,
   ArrowUpRight,
   Banknote,
   ChevronRight,
   CreditCard,
-  LoaderCircle,
   RefreshCw,
   TriangleAlert,
   WalletCards,
@@ -677,20 +677,152 @@ export function FinanceDashboard({
 export function DashboardLoading({
   title = "Preparando seu painel",
   message = "Sua instituição foi conectada. Estamos buscando os cartões e as transações mais recentes.",
+  variant = "dashboard",
 }: {
   title?: string
   message?: string
+  variant?: "dashboard" | "transactions" | "cards"
 }) {
+  const rows = Array.from({ length: 6 })
   return (
-    <main className="st-state-page">
-      <Card as="section" className="st-state-card">
-        <span className="st-state-icon">
-          <LoaderCircle aria-hidden="true" className="animate-spin" size={22} />
-        </span>
-        <h1>{title}</h1>
-        <p>{message}</p>
-      </Card>
+    <main
+      aria-busy="true"
+      aria-live="polite"
+      className="st-loading-page"
+      role="status"
+    >
+      <span className="sr-only">
+        {title}. {message}
+      </span>
+      <div className="st-window st-loading-window">
+        <aside aria-hidden="true" className="st-sidebar st-loading-sidebar">
+          <div className="st-loading-brand">
+            <Skeleton className="st-sk-brand-mark" />
+            <div>
+              <Skeleton className="st-sk-brand-name" />
+              <Skeleton className="st-sk-brand-subtitle" />
+            </div>
+            <Skeleton className="st-sk-brand-action" />
+          </div>
+          <div className="st-loading-nav">
+            {rows.slice(0, 3).map((_, index) => (
+              <div className="st-loading-nav-row" key={index}>
+                <Skeleton className="st-sk-nav-icon" />
+                <Skeleton className="st-sk-nav-label" />
+              </div>
+            ))}
+          </div>
+          <div className="st-loading-sidebar-footer">
+            <Skeleton className="st-sk-footer-icon" />
+            <Skeleton className="st-sk-footer-label" />
+          </div>
+        </aside>
+        <div className="st-main st-loading-main">
+          <header className="st-header st-loading-header" aria-hidden="true">
+            <Skeleton className="st-sk-breadcrumb" />
+            <div>
+              <Skeleton className="st-sk-header-meta" />
+              <Skeleton className="st-sk-header-action" />
+            </div>
+          </header>
+          {variant === "dashboard" ? (
+            <div className="st-dashboard-grid st-loading-dashboard">
+              <div className="st-column">
+                <Card className="st-panel st-loading-panel" aria-hidden="true">
+                  <Skeleton className="st-sk-panel-title" />
+                  <Skeleton className="st-sk-panel-caption" />
+                  <Skeleton className="st-sk-total" />
+                  <Skeleton className="st-sk-divider" />
+                  <div className="st-sk-breakdown">
+                    <Skeleton />
+                    <Skeleton />
+                    <Skeleton />
+                  </div>
+                </Card>
+                <Card className="st-panel st-loading-panel" aria-hidden="true">
+                  <Skeleton className="st-sk-panel-title" />
+                  <Skeleton className="st-sk-panel-caption" />
+                  <LoadingRows rows={rows.slice(0, 4)} />
+                </Card>
+              </div>
+              <div className="st-column">
+                <Card className="st-panel st-loading-panel" aria-hidden="true">
+                  <Skeleton className="st-sk-panel-title" />
+                  <Skeleton className="st-sk-total" />
+                  <Skeleton className="st-sk-chart" />
+                </Card>
+                <Card className="st-panel st-loading-panel" aria-hidden="true">
+                  <Skeleton className="st-sk-panel-title" />
+                  <Skeleton className="st-sk-donut" />
+                </Card>
+              </div>
+            </div>
+          ) : (
+            <div className="st-loading-page-content" aria-hidden="true">
+              <div className="st-loading-page-title">
+                <Skeleton className="st-sk-page-title" />
+                <Skeleton className="st-sk-page-description" />
+              </div>
+              <Card className="st-panel st-loading-toolbar">
+                <Skeleton className="st-sk-toolbar-label" />
+                <Skeleton className="st-sk-date-field" />
+                <Skeleton className="st-sk-date-field" />
+                <Skeleton className="st-sk-toolbar-button" />
+              </Card>
+              {variant === "transactions" ? (
+                <div className="st-range-summary st-loading-summary">
+                  <Card className="st-range-stat">
+                    <Skeleton className="st-sk-stat-label" />
+                    <Skeleton className="st-sk-stat-value" />
+                  </Card>
+                  <Card className="st-range-stat">
+                    <Skeleton className="st-sk-stat-label" />
+                    <Skeleton className="st-sk-stat-value" />
+                  </Card>
+                  <Card className="st-range-stat">
+                    <Skeleton className="st-sk-stat-label" />
+                    <Skeleton className="st-sk-stat-value" />
+                  </Card>
+                </div>
+              ) : (
+                <div className="st-cards-grid st-loading-card-grid">
+                  {rows.slice(0, 3).map((_, index) => (
+                    <Card className="st-loading-credit-card" key={index}>
+                      <Skeleton className="st-sk-card-label" />
+                      <Skeleton className="st-sk-card-name" />
+                      <Skeleton className="st-sk-card-number" />
+                      <Skeleton className="st-sk-card-limit" />
+                    </Card>
+                  ))}
+                </div>
+              )}
+              <Card className="st-panel st-loading-list">
+                <Skeleton className="st-sk-panel-title" />
+                <Skeleton className="st-sk-search" />
+                <LoadingRows rows={rows} />
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
     </main>
+  )
+}
+
+function LoadingRows({ rows }: { rows: unknown[] }) {
+  return (
+    <div className="st-loading-rows">
+      {rows.map((_, index) => (
+        <div className="st-loading-row" key={index}>
+          <Skeleton className="st-sk-row-icon" />
+          <div>
+            <Skeleton className="st-sk-row-title" />
+            <Skeleton className="st-sk-row-subtitle" />
+          </div>
+          <Skeleton className="st-sk-row-amount" />
+        </div>
+      ))}
+    </div>
   )
 }
 

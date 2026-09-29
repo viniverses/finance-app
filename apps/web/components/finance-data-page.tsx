@@ -267,6 +267,7 @@ export function FinanceDataPage({ kind }: { kind: PageKind }) {
           kind === "cards" ? "Carregando seus cartões" : "Carregando transações"
         }
         message="Buscando as movimentações da sua instituição para o período selecionado."
+        variant={kind}
       />
     )
   }
