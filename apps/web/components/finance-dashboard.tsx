@@ -273,13 +273,16 @@ function ExpenseDonut({
   total: number
 }) {
   let offset = 0
+  const center = 120
+  const labelRadius = 100
+  const chartRotation = -80
   return (
     <div className="st-donut-wrap">
       <svg
         aria-label="Distribuição dos gastos por categoria"
         className="st-donut"
         role="img"
-        viewBox="0 0 220 220"
+        viewBox="0 0 240 240"
       >
         <defs>
           <linearGradient id="st-donut-pink" x1="0" x2="1" y1="0" y2="1">
@@ -296,35 +299,53 @@ function ExpenseDonut({
           </linearGradient>
         </defs>
         <circle
-          cx="110"
-          cy="110"
+          cx={center}
+          cy={center}
           fill="none"
-          r="88"
+          r="80"
+          stroke="#f0f1f4"
+          strokeWidth="24"
+        />
+        <circle
+          cx={center}
+          cy={center}
+          fill="none"
+          r="102"
+          stroke="var(--st-border)"
+          strokeWidth="1"
+        />
+        <circle
+          cx={center}
+          cy={center}
+          fill="none"
+          r="68"
           stroke="var(--st-border)"
           strokeWidth="1"
         />
         {slices.map((slice) => {
           const start = offset
           offset += slice.percentage
-          const arcLength = Math.max(0, slice.percentage - 2)
+          const arcLength = Math.max(0, slice.percentage - 3)
           const midAngle =
-            ((start + slice.percentage / 2) / 100) * Math.PI * 2 - Math.PI / 2
-          const bubbleX = 110 + Math.cos(midAngle) * 88
-          const bubbleY = 110 + Math.sin(midAngle) * 88
+            ((start + slice.percentage / 2) / 100) * Math.PI * 2 -
+            Math.PI / 2 +
+            (chartRotation * Math.PI) / 180
+          const bubbleX = center + Math.cos(midAngle) * labelRadius
+          const bubbleY = center + Math.sin(midAngle) * labelRadius
           return (
             <g key={slice.label}>
               <circle
-                cx="110"
-                cy="110"
+                cx={center}
+                cy={center}
                 fill="none"
                 pathLength="100"
-                r="72"
+                r="80"
                 stroke={`url(#st-donut-${slice.color})`}
                 strokeDasharray={`${arcLength} 100`}
                 strokeDashoffset={-start}
                 strokeLinecap="round"
-                strokeWidth="22"
-                transform="rotate(-90 110 110)"
+                strokeWidth="24"
+                transform={`rotate(${chartRotation - 90} ${center} ${center})`}
               />
               <circle
                 className="st-donut-bubble"
