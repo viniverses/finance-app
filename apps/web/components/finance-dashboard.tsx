@@ -57,6 +57,7 @@ export type FinanceTransaction = {
   creditCardMetadata: {
     installmentNumber?: number
     totalInstallments?: number
+    cardNumber?: string
   } | null
 }
 
@@ -113,6 +114,26 @@ function transactionDate(value: string) {
 function maskAccount(number: string) {
   const digits = number.replace(/\D/g, "")
   return digits.length >= 4 ? `•••• ${digits.slice(-4)}` : "•••• 0000"
+}
+
+export function getTransactionCardLabel(
+  transaction: FinanceTransaction,
+  account?: FinanceAccount
+) {
+  const metadataNumber = transaction.creditCardMetadata?.cardNumber
+  const accountIsCreditCard =
+    account?.type === "CREDIT" && account.subtype === "CREDIT_CARD"
+  if (!metadataNumber && !accountIsCreditCard) return null
+
+  const number = metadataNumber || account?.number
+  const digits = number?.replace(/\D/g, "")
+  const maskedNumber = digits && digits.length >= 4
+    ? `•••• ${digits.slice(-4)}`
+    : null
+  const name = account?.marketingName || account?.name
+  return [name || "Cartão de crédito", maskedNumber]
+    .filter(Boolean)
+    .join(" · ")
 }
 
 function getTransactionName(transaction: FinanceTransaction) {
@@ -192,9 +213,16 @@ export function CreditCardVisual({ account }: { account: FinanceAccount }) {
   )
 }
 
-function TransactionRow({ transaction }: { transaction: FinanceTransaction }) {
+function TransactionRow({
+  transaction,
+  account,
+}: {
+  transaction: FinanceTransaction
+  account?: FinanceAccount
+}) {
   const isCredit = transaction.type === "CREDIT"
   const category = getTransactionCategory(transaction)
+  const cardLabel = getTransactionCardLabel(transaction, account)
   return (
     <li className="st-transaction-row">
       <span className={`st-transaction-icon ${isCredit ? "is-credit" : ""}`}>
@@ -210,6 +238,12 @@ function TransactionRow({ transaction }: { transaction: FinanceTransaction }) {
           {formatDate(transaction.date)}
           {transaction.status === "PENDING" ? " · Pendente" : ""}
         </small>
+        {cardLabel ? (
+          <small className="st-transaction-card">
+            <CreditCard aria-hidden="true" size={11} />
+            {cardLabel}
+          </small>
+        ) : null}
       </span>
       <span className="st-transaction-category">
         <i style={{ backgroundColor: categoryColor(category) }} />
@@ -431,6 +465,9 @@ export function FinanceDashboard({
   )
   const limitRatio = totalLimit > 0 ? Math.min(1, usedLimit / totalLimit) : 0
   const recent = data.transactions.slice(0, 7)
+  const accountsById = new Map(
+    data.accounts.map((account) => [account.id, account])
+  )
   let lastDay = ""
 
   return (
@@ -523,7 +560,10 @@ export function FinanceDashboard({
                           </h3>
                         ) : null}
                         <ul>
-                          <TransactionRow transaction={transaction} />
+                          <TransactionRow
+                            account={accountsById.get(transaction.accountId)}
+                            transaction={transaction}
+                          />
                         </ul>
                       </li>
                     )

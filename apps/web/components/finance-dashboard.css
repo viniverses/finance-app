@@ -536,6 +536,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.st-transaction-name .st-transaction-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.st-transaction-card svg {
+  flex: 0 0 auto;
+}
 .st-transaction-category {
   display: flex;
   align-items: center;

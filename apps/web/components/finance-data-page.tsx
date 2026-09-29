@@ -24,13 +24,12 @@ import { type FormEvent, useEffect, useMemo, useState } from "react"
 
 import {
   CreditCardVisual,
+  DashboardError,
+  DashboardLoading,
   type FinanceAccount,
   type FinanceData,
   type FinanceTransaction,
-} from "@/components/finance-dashboard"
-import {
-  DashboardError,
-  DashboardLoading,
+  getTransactionCardLabel,
 } from "@/components/finance-dashboard"
 import { FinanceShell } from "@/components/finance-shell"
 import { authClient } from "@/lib/auth-client"
@@ -97,8 +96,15 @@ function transactionLabel(transaction: FinanceTransaction) {
   return transaction.merchant?.name || transaction.description || "Movimentação"
 }
 
-function TransactionLine({ transaction }: { transaction: FinanceTransaction }) {
+function TransactionLine({
+  transaction,
+  account,
+}: {
+  transaction: FinanceTransaction
+  account?: FinanceAccount
+}) {
   const isCredit = transaction.type === "CREDIT"
+  const cardLabel = getTransactionCardLabel(transaction, account)
   return (
     <li className="st-transaction-row">
       <span className={`st-transaction-icon ${isCredit ? "is-credit" : ""}`}>
@@ -114,6 +120,12 @@ function TransactionLine({ transaction }: { transaction: FinanceTransaction }) {
           {formatTransactionDate(transaction.date)}
           {transaction.status === "PENDING" ? " · Pendente" : ""}
         </small>
+        {cardLabel ? (
+          <small className="st-transaction-card">
+            <CreditCard aria-hidden="true" size={11} />
+            {cardLabel}
+          </small>
+        ) : null}
       </span>
       <span className="st-transaction-category">
         <i />
@@ -277,6 +289,9 @@ export function FinanceDataPage({ kind }: { kind: PageKind }) {
     (account: FinanceAccount) =>
       account.type === "CREDIT" && account.subtype === "CREDIT_CARD"
   )
+  const accountsById = new Map(
+    data.accounts.map((account) => [account.id, account])
+  )
   const cardAccountIds = new Set(creditCards.map((account) => account.id))
   const transactions =
     kind === "cards"
@@ -429,6 +444,7 @@ export function FinanceDataPage({ kind }: { kind: PageKind }) {
                     <ul className="st-transactions st-range-transactions">
                       {filteredTransactions.map((transaction) => (
                         <TransactionLine
+                          account={accountsById.get(transaction.accountId)}
                           key={transaction.id}
                           transaction={transaction}
                         />
