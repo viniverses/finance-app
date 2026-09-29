@@ -626,13 +626,7 @@ html:has(.st-page)::-webkit-scrollbar {
   overflow: hidden;
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-card);
-  background: #f8faff;
-}
-.st-credit-card-1 {
-  background: #f6fbfc;
-}
-.st-credit-card-2 {
-  background: #fff8fb;
+  background: var(--st-surface);
 }
 .st-credit-card-top,
 .st-credit-card-bottom {

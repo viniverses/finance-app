@@ -153,19 +153,13 @@ function EmptyCardsState() {
   )
 }
 
-function CreditCardVisual({
-  account,
-  index,
-}: {
-  account: FinanceAccount
-  index: number
-}) {
+function CreditCardVisual({ account }: { account: FinanceAccount }) {
   const credit = account.creditData
   const limit = credit?.creditLimit
   const available = credit?.availableCreditLimit
   const cardName = account.marketingName || account.name || "Cartão principal"
   return (
-    <article className={`st-credit-card st-credit-card-${index % 3}`}>
+    <article className="st-credit-card">
       <div className="st-credit-card-top">
         <div>
           <span className="st-kicker">{credit?.brand || "Cartão"}</span>
@@ -708,12 +702,8 @@ export function FinanceDashboard({
             </div>
             {cards.length > 0 ? (
               <div className="st-cards-grid">
-                {cards.map((account, index) => (
-                  <CreditCardVisual
-                    account={account}
-                    index={index}
-                    key={account.id}
-                  />
+                {cards.map((account) => (
+                  <CreditCardVisual account={account} key={account.id} />
                 ))}
               </div>
             ) : (
