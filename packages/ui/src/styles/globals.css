@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Onest:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
@@ -8,6 +9,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --st-page-bg: #c9c9c9;
+  --st-app-bg: #f3f4f5;
+  --st-surface: #ffffff;
+  --st-border: #e6e8eb;
+  --st-border-dashed: #d5d8dd;
+  --st-text: #0f1115;
+  --st-text-secondary: #6b7280;
+  --st-text-muted: #9ca3af;
+  --st-blue: #3b5fc4;
+  --st-blue-light: #bbd9f2;
+  --st-pink: #e02a73;
+  --st-teal: #5cc6c0;
+  --st-positive: #16a34a;
+  --st-positive-bg: #dcfce7;
+  --st-alert-bg: #fde8f0;
+  --st-alert-text: #d6246e;
+  --st-toggle-off: #d1d5db;
+  --st-category-entertainment: #3b82f6;
+  --st-category-food: #ef4444;
+  --st-category-transport: #8b5cf6;
+  --st-category-utilities: #6b7280;
+  --st-category-shopping: #14b8a6;
+  --st-category-subscriptions: #f59e0b;
+  --st-radius-window: 24px;
+  --st-radius-card: 12px;
+  --st-radius-row: 8px;
+  --st-radius-button: 8px;
+  --st-radius-pill: 999px;
+  --st-radius-logo: 6px;
+  --st-type-card-title: 15px;
+  --st-type-amount: 17px;
+  --st-type-body: 11px;
+  --st-type-caption: 9px;
+  --st-type-nav: 11px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -79,6 +114,31 @@
 }
 
 @theme inline {
+  --font-sans: "Onest", "Inter", system-ui, sans-serif;
+  --text-st-card-title: var(--st-type-card-title);
+  --text-st-amount: var(--st-type-amount);
+  --text-st-body: var(--st-type-body);
+  --text-st-caption: var(--st-type-caption);
+  --text-st-nav: var(--st-type-nav);
+  --color-st-page: var(--st-page-bg);
+  --color-st-app: var(--st-app-bg);
+  --color-st-surface: var(--st-surface);
+  --color-st-border: var(--st-border);
+  --color-st-text: var(--st-text);
+  --color-st-secondary: var(--st-text-secondary);
+  --color-st-muted: var(--st-text-muted);
+  --color-st-blue: var(--st-blue);
+  --color-st-blue-light: var(--st-blue-light);
+  --color-st-pink: var(--st-pink);
+  --color-st-teal: var(--st-teal);
+  --color-st-positive: var(--st-positive);
+  --color-st-positive-bg: var(--st-positive-bg);
+  --color-st-alert-bg: var(--st-alert-bg);
+  --color-st-alert-text: var(--st-alert-text);
+  --radius-st-window: var(--st-radius-window);
+  --radius-st-card: var(--st-radius-card);
+  --radius-st-row: var(--st-radius-row);
+  --radius-st-button: var(--st-radius-button);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -122,6 +182,14 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--st-blue-light);
+    color: var(--st-text);
+  }
+  :focus-visible {
+    outline-color: var(--st-blue);
   }
 }
