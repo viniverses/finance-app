@@ -213,9 +213,6 @@
 .st-panel {
   min-width: 0;
   padding: 16px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-card);
-  background: var(--st-surface);
 }
 .st-panel-heading {
   display: flex;
@@ -719,9 +716,6 @@
 .st-state-card {
   width: min(100%, 430px);
   padding: 30px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-card);
-  background: var(--st-surface);
   text-align: center;
 }
 .st-state-icon {
@@ -757,12 +751,6 @@
   min-height: 40px;
   margin-top: 22px;
   padding: 0 16px;
-  border: 1px solid var(--st-blue);
-  border-radius: var(--st-radius-button);
-  background: var(--st-blue);
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
   transition: background-color 120ms;
 }
@@ -781,9 +769,6 @@
 .st-auth-card {
   width: min(100%, 460px);
   padding: 32px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-card);
-  background: var(--st-surface);
 }
 .st-auth-brand {
   display: flex;
@@ -825,13 +810,7 @@
   font-weight: 600;
 }
 .st-auth-input {
-  height: 44px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-button);
-  background: var(--st-surface);
-  color: var(--st-text);
   font-size: 13px;
-  box-shadow: none;
 }
 .st-auth-input::placeholder {
   color: var(--st-text-muted);
@@ -864,13 +843,8 @@
   width: 100%;
   min-height: 44px;
   padding: 0 16px;
-  border: 1px solid var(--st-blue);
-  border-radius: var(--st-radius-button);
-  background: var(--st-blue);
-  color: white;
   font-size: 13px;
   font-weight: 600;
-  box-shadow: none;
   cursor: pointer;
   transition: background-color 120ms;
 }

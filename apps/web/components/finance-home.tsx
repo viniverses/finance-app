@@ -3,6 +3,8 @@
 import "./finance-dashboard.css"
 
 import { useMutation } from "@tanstack/react-query"
+import { Button } from "@workspace/ui/components/button"
+import { Card } from "@workspace/ui/components/card"
 import {
   ArrowRight,
   Landmark,
@@ -186,7 +188,7 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
 
   return (
     <main className="st-auth-page">
-      <section className="st-auth-card">
+      <Card as="section" className="st-auth-card">
         <div className="st-auth-brand">
           <div className="st-brand-mark st-auth-mark">
             <Landmark aria-hidden="true" size={21} />
@@ -215,7 +217,7 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
           </div>
         </div>
 
-        <button
+        <Button
           className="st-auth-submit st-connect-button"
           disabled={isConnecting || Boolean(connectToken)}
           onClick={() => connectTokenMutation.mutate()}
@@ -234,7 +236,7 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
             ? "Preparando conexão..."
             : "Conectar minha instituição"}
           {!isConnecting && <ArrowRight aria-hidden="true" size={17} />}
-        </button>
+        </Button>
 
         {error && (
           <p className="st-form-alert" role="alert">
@@ -249,7 +251,7 @@ export function FinanceHome({ userName }: FinanceHomeProps) {
           <LockKeyhole aria-hidden="true" size={12} />
           Conexão criptografada e protegida
         </div>
-      </section>
+      </Card>
 
       {connectToken && (
         <PluggyConnect

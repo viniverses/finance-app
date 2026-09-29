@@ -4,6 +4,7 @@ import "./finance-dashboard.css"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
+import { Card } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { ArrowRight, Landmark, LoaderCircle, LockKeyhole } from "lucide-react"
@@ -69,7 +70,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <main className="st-auth-page">
-      <section className="st-auth-card">
+      <Card as="section" className="st-auth-card">
         <div className="st-auth-brand">
           <div className="st-brand-mark st-auth-mark">
             <Landmark aria-hidden="true" size={21} />
@@ -173,7 +174,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             {isSignUp ? "Entrar" : "Criar conta"}
           </Link>
         </p>
-      </section>
+      </Card>
     </main>
   )
 }

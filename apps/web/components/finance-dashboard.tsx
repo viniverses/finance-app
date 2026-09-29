@@ -2,6 +2,14 @@
 
 import "./finance-dashboard.css"
 
+import { Button } from "@workspace/ui/components/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -470,10 +478,15 @@ export function FinanceDashboard({
               <small>Conexão Open Finance criptografada</small>
             </span>
           </div>
-          <button className="st-signout" onClick={onSignOut} type="button">
+          <Button
+            className="st-signout"
+            onClick={onSignOut}
+            type="button"
+            variant="ghost"
+          >
             <LogOut aria-hidden="true" size={16} />
             Sair da conta
-          </button>
+          </Button>
         </div>
       </aside>
       <div className="st-main">
@@ -487,226 +500,267 @@ export function FinanceDashboard({
             <span className="st-updated">
               Atualizado às {time.format(new Date(data.updatedAt))}
             </span>
-            <button
+            <Button
               aria-label="Atualizar dados"
               className="st-icon-button"
               disabled={isRefreshing}
               onClick={onRefresh}
+              size="icon"
               type="button"
+              variant="outline"
             >
               <RefreshCw
                 aria-hidden="true"
                 className={isRefreshing ? "animate-spin" : ""}
                 size={16}
               />
-            </button>
-            <button
+            </Button>
+            <Button
               aria-label="Sair"
               className="st-icon-button st-mobile-signout"
               onClick={onSignOut}
+              size="icon"
               type="button"
+              variant="outline"
             >
               <LogOut aria-hidden="true" size={16} />
-            </button>
+            </Button>
           </div>
         </header>
         <div className="st-dashboard-grid" id="resumo">
           <div className="st-column">
-            <section
+            <Card
+              as="section"
               aria-labelledby="income-title"
               className="st-panel st-income-panel"
             >
-              <div className="st-panel-heading">
+              <CardHeader className="st-panel-heading">
                 <div>
-                  <h1 id="income-title">Entradas e saldo</h1>
-                  <p>Resumo das movimentações recentes</p>
+                  <CardTitle as="h1" id="income-title">
+                    Entradas e saldo
+                  </CardTitle>
+                  <CardDescription>
+                    Resumo das movimentações recentes
+                  </CardDescription>
                 </div>
                 <span className="st-period">Últimos 90 dias</span>
-              </div>
-              <div className="st-income-total">
-                <strong>{formatMoney(totalIncome)}</strong>
-                <span>em entradas</span>
-              </div>
-              <div className="st-panel-divider" />
-              <div className="st-breakdown-label">Entradas por categoria</div>
-              <div className="st-income-breakdown">
-                {incomeBreakdown.length > 0 ? (
-                  incomeBreakdown.map(([label, amount], index) => (
-                    <div className="st-income-part" key={label}>
-                      <span>{label}</span>
-                      <strong>{formatMoney(amount)}</strong>
-                      <i className={`st-income-bar st-income-bar-${index}`} />
-                    </div>
-                  ))
-                ) : (
-                  <p className="st-no-data">
-                    Nenhuma entrada nas movimentações recentes.
-                  </p>
-                )}
-              </div>
-              <div className="st-balance-note">
-                Saldo em contas <strong>{formatMoney(totalBalance)}</strong>
-              </div>
-            </section>
-            <section
+              </CardHeader>
+              <CardContent>
+                <div className="st-income-total">
+                  <strong>{formatMoney(totalIncome)}</strong>
+                  <span>em entradas</span>
+                </div>
+                <div className="st-panel-divider" />
+                <div className="st-breakdown-label">Entradas por categoria</div>
+                <div className="st-income-breakdown">
+                  {incomeBreakdown.length > 0 ? (
+                    incomeBreakdown.map(([label, amount], index) => (
+                      <div className="st-income-part" key={label}>
+                        <span>{label}</span>
+                        <strong>{formatMoney(amount)}</strong>
+                        <i className={`st-income-bar st-income-bar-${index}`} />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="st-no-data">
+                      Nenhuma entrada nas movimentações recentes.
+                    </p>
+                  )}
+                </div>
+                <div className="st-balance-note">
+                  Saldo em contas <strong>{formatMoney(totalBalance)}</strong>
+                </div>
+              </CardContent>
+            </Card>
+            <Card
+              as="section"
               aria-labelledby="transactions-title"
               className="st-panel st-transactions-panel"
               id="transacoes"
             >
-              <div className="st-panel-heading">
+              <CardHeader className="st-panel-heading">
                 <div>
-                  <h2 id="transactions-title">Transações recentes</h2>
-                  <p>Movimentações das contas conectadas</p>
+                  <CardTitle as="h2" id="transactions-title">
+                    Transações recentes
+                  </CardTitle>
+                  <CardDescription>
+                    Movimentações das contas conectadas
+                  </CardDescription>
                 </div>
                 <Banknote
                   aria-hidden="true"
                   className="st-heading-icon"
                   size={20}
                 />
-              </div>
-              {recent.length > 0 ? (
-                <ul className="st-transactions">
-                  {recent.map((transaction) => {
-                    const day = transaction.date.slice(0, 10)
-                    const showDay = day !== lastDay
-                    lastDay = day
-                    return (
-                      <li className="st-transaction-group" key={transaction.id}>
-                        {showDay ? (
-                          <h3>
-                            {fullDate.format(transactionDate(transaction.date))}
-                          </h3>
-                        ) : null}
-                        <ul>
-                          <TransactionRow transaction={transaction} />
-                        </ul>
-                      </li>
-                    )
-                  })}
-                </ul>
-              ) : (
-                <div className="st-empty">
-                  <Banknote aria-hidden="true" size={24} />
-                  <strong>Ainda sem transações</strong>
-                  <span>
-                    Assim que sua instituição disponibilizar os movimentos, eles
-                    aparecerão aqui.
-                  </span>
-                </div>
-              )}
-            </section>
+              </CardHeader>
+              <CardContent>
+                {recent.length > 0 ? (
+                  <ul className="st-transactions">
+                    {recent.map((transaction) => {
+                      const day = transaction.date.slice(0, 10)
+                      const showDay = day !== lastDay
+                      lastDay = day
+                      return (
+                        <li
+                          className="st-transaction-group"
+                          key={transaction.id}
+                        >
+                          {showDay ? (
+                            <h3>
+                              {fullDate.format(
+                                transactionDate(transaction.date)
+                              )}
+                            </h3>
+                          ) : null}
+                          <ul>
+                            <TransactionRow transaction={transaction} />
+                          </ul>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ) : (
+                  <div className="st-empty">
+                    <Banknote aria-hidden="true" size={24} />
+                    <strong>Ainda sem transações</strong>
+                    <span>
+                      Assim que sua instituição disponibilizar os movimentos,
+                      eles aparecerão aqui.
+                    </span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
           <div className="st-column">
-            <section
+            <Card
+              as="section"
               aria-labelledby="budget-title"
               className="st-panel st-budget-panel"
             >
-              <div className="st-panel-heading">
-                <h2 id="budget-title">Controle de limite</h2>
+              <CardHeader className="st-panel-heading">
+                <CardTitle as="h2" id="budget-title">
+                  Controle de limite
+                </CardTitle>
                 <CreditCard
                   aria-hidden="true"
                   className="st-heading-icon"
                   size={19}
                 />
-              </div>
-              <p className="st-budget-label">Limite dos cartões conectados</p>
-              <div className="st-budget-amount">
-                <strong>{formatMoney(totalLimit ? usedLimit : null)}</strong>
-                <span> de {formatMoney(totalLimit || null)}</span>
-              </div>
-              <BudgetSegments ratio={limitRatio} />
-              {totalLimit > 0 ? (
-                limitRatio >= 0.74 ? (
-                  <p className="st-budget-alert">
-                    <TriangleAlert aria-hidden="true" size={14} />O uso do
-                    limite está próximo do total
-                  </p>
+              </CardHeader>
+              <CardContent>
+                <p className="st-budget-label">Limite dos cartões conectados</p>
+                <div className="st-budget-amount">
+                  <strong>{formatMoney(totalLimit ? usedLimit : null)}</strong>
+                  <span> de {formatMoney(totalLimit || null)}</span>
+                </div>
+                <BudgetSegments ratio={limitRatio} />
+                {totalLimit > 0 ? (
+                  limitRatio >= 0.74 ? (
+                    <p className="st-budget-alert">
+                      <TriangleAlert aria-hidden="true" size={14} />O uso do
+                      limite está próximo do total
+                    </p>
+                  ) : (
+                    <p className="st-budget-helper">
+                      {Math.round(limitRatio * 100)}% do limite utilizado
+                    </p>
+                  )
                 ) : (
                   <p className="st-budget-helper">
-                    {Math.round(limitRatio * 100)}% do limite utilizado
+                    Limite não informado pela instituição
                   </p>
-                )
-              ) : (
-                <p className="st-budget-helper">
-                  Limite não informado pela instituição
-                </p>
-              )}
-            </section>
-            <section
+                )}
+              </CardContent>
+            </Card>
+            <Card
+              as="section"
               aria-labelledby="expense-title"
               className="st-panel st-expense-panel"
             >
-              <div className="st-panel-heading">
-                <h2 id="expense-title">Resumo de gastos</h2>
+              <CardHeader className="st-panel-heading">
+                <CardTitle as="h2" id="expense-title">
+                  Resumo de gastos
+                </CardTitle>
                 <span className="st-period">90 dias</span>
-              </div>
-              {monthSpend > 0 ? (
-                <>
-                  <ExpenseDonut slices={expenseSlices} total={monthSpend} />
-                  <h3>Por categoria</h3>
-                  <ul className="st-expense-list">
-                    {expenseSlices.map((slice) => (
-                      <li key={slice.label}>
-                        <span
-                          className="st-expense-symbol"
-                          style={{
-                            backgroundColor: categoryColor(slice.label),
-                          }}
-                        />
-                        <span className="st-expense-name">
-                          <strong>{slice.label}</strong>
-                          <small>
-                            {Math.round(slice.percentage)}% dos gastos recentes
-                          </small>
-                        </span>
-                        <strong className="st-expense-value">
-                          {formatMoney(slice.amount)}
-                        </strong>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <div className="st-empty">
-                  <Banknote aria-hidden="true" size={24} />
-                  <strong>Sem gastos recentes</strong>
-                  <span>
-                    As despesas aparecerão aqui quando a instituição enviar
-                    movimentações.
-                  </span>
-                </div>
-              )}
-            </section>
+              </CardHeader>
+              <CardContent>
+                {monthSpend > 0 ? (
+                  <>
+                    <ExpenseDonut slices={expenseSlices} total={monthSpend} />
+                    <h3>Por categoria</h3>
+                    <ul className="st-expense-list">
+                      {expenseSlices.map((slice) => (
+                        <li key={slice.label}>
+                          <span
+                            className="st-expense-symbol"
+                            style={{
+                              backgroundColor: categoryColor(slice.label),
+                            }}
+                          />
+                          <span className="st-expense-name">
+                            <strong>{slice.label}</strong>
+                            <small>
+                              {Math.round(slice.percentage)}% dos gastos
+                              recentes
+                            </small>
+                          </span>
+                          <strong className="st-expense-value">
+                            {formatMoney(slice.amount)}
+                          </strong>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <div className="st-empty">
+                    <Banknote aria-hidden="true" size={24} />
+                    <strong>Sem gastos recentes</strong>
+                    <span>
+                      As despesas aparecerão aqui quando a instituição enviar
+                      movimentações.
+                    </span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
-        <section
+        <Card
+          as="section"
           aria-labelledby="cards-title"
           className="st-panel st-cards-panel"
           id="cartoes"
         >
-          <div className="st-panel-heading">
+          <CardHeader className="st-panel-heading">
             <div>
-              <h2 id="cards-title">Seus cartões</h2>
-              <p>Limite e crédito disponível em um só lugar</p>
+              <CardTitle as="h2" id="cards-title">
+                Seus cartões
+              </CardTitle>
+              <CardDescription>
+                Limite e crédito disponível em um só lugar
+              </CardDescription>
             </div>
             <span className="st-count">
               {cards.length} {cards.length === 1 ? "cartão" : "cartões"}
             </span>
-          </div>
-          {cards.length > 0 ? (
-            <div className="st-cards-grid">
-              {cards.map((account) => (
-                <CreditCardVisual account={account} key={account.id} />
-              ))}
-            </div>
-          ) : (
-            <EmptyCardsState />
-          )}
-          <a className="st-section-link" href="#transacoes">
-            Ver todas as movimentações{" "}
-            <ChevronRight aria-hidden="true" size={16} />
-          </a>
-        </section>
+          </CardHeader>
+          <CardContent>
+            {cards.length > 0 ? (
+              <div className="st-cards-grid">
+                {cards.map((account) => (
+                  <CreditCardVisual account={account} key={account.id} />
+                ))}
+              </div>
+            ) : (
+              <EmptyCardsState />
+            )}
+            <a className="st-section-link" href="#transacoes">
+              Ver todas as movimentações{" "}
+              <ChevronRight aria-hidden="true" size={16} />
+            </a>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
@@ -721,13 +775,13 @@ export function DashboardLoading({
 }) {
   return (
     <main className="st-state-page">
-      <section className="st-state-card">
+      <Card as="section" className="st-state-card">
         <span className="st-state-icon">
           <LoaderCircle aria-hidden="true" className="animate-spin" size={22} />
         </span>
         <h1>{title}</h1>
         <p>{message}</p>
-      </section>
+      </Card>
     </main>
   )
 }
@@ -741,17 +795,17 @@ export function DashboardError({
 }) {
   return (
     <main className="st-state-page">
-      <section className="st-state-card">
+      <Card as="section" className="st-state-card">
         <span className="st-state-icon is-error">
           <RefreshCw aria-hidden="true" size={21} />
         </span>
         <h1>A conexão precisa de mais um instante</h1>
         <p>{message}</p>
-        <button className="st-primary-button" onClick={onRetry} type="button">
+        <Button className="st-primary-button" onClick={onRetry} type="button">
           <RefreshCw aria-hidden="true" size={16} />
           Tentar novamente
-        </button>
-      </section>
+        </Button>
+      </Card>
     </main>
   )
 }
